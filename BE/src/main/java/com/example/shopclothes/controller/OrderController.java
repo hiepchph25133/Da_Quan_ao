@@ -62,20 +62,14 @@ public class OrderController {
                 .body(order);
     }
 
-//    @PutMapping("updateOrder")
-//@PutMapping("updateOrder/{orderId}")
-//    public ResponseEntity<Order> updateOrder(@RequestBody OrderInStoreRequestDto requestDto) {
-//        Order  order = orderService.updateOrder(requestDto);
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(order);
-//    }
-
-    @PutMapping("updateOrder/{orderId}") // Thêm {orderId} vào đường dẫn API
-    public ResponseEntity<Order> updateOrder(@PathVariable("orderId") Long orderId, @RequestBody OrderInStoreRequestDto requestDto) {
-        requestDto.setOrderId(orderId);
-        Order order = orderService.updateOrder(requestDto);
-        return ResponseEntity.status(HttpStatus.OK).body(order);
+    //@PutMapping("updateOrder/{orderId}")
+    @PutMapping("updateOrder")
+    public ResponseEntity<Order> updateOrder(@RequestBody OrderInStoreRequestDto requestDto) {
+        Order  order = orderService.updateOrder(requestDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(order);
     }
+
 
 
     @PatchMapping("updateOrderUser")
@@ -135,4 +129,13 @@ public class OrderController {
             e.printStackTrace();
         }
     }
+
+    @PatchMapping("updateOrderVoucher")
+    public ResponseEntity<Order> updateOrderVoucher(@RequestParam(required = false) Long orderId,
+                                                    @RequestParam(required = false) String code) {
+        Order order = orderService.updateOrderVoucher(orderId, code);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(order);
+    }
+
 }

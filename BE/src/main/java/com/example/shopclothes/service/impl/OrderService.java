@@ -43,6 +43,9 @@ public class OrderService implements OrderServiceIPL {
     @Autowired
     private ProductDetailRepo productDetailRepository;
 
+    @Autowired
+    private VocherRepo vocherRepo;
+
     @Override
     public Order createOrderInStore() {
         OrderStatus orderStatus = orderStatusRepository.findByStatusName("Tạo đơn hàng").orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy trạng thái hóa đơn này!"));
@@ -91,36 +94,32 @@ public class OrderService implements OrderServiceIPL {
         return order;
     }
 
+
+
     @Override
     public Order updateOrder(OrderInStoreRequestDto requestDto) {
-        // Tìm đối tượng Order theo ID
-        Order order = orderRepository.findById(requestDto.getOrderId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy id hóa đơn này!"));
+        Order order = orderRepository.findById(requestDto.getOrderId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy id hóa đơn này!"));
 
-        // Tìm đối tượng OrderStatus
-        OrderStatus orderStatus = (requestDto.getStatusName() != null) ? orderStatusRepository.findByStatusName(requestDto.getStatusName()).orElse(null) : null;
+        OrderStatus orderStatus = (requestDto.getStatusName() != null) ?
+                orderStatusRepository.findByStatusName(requestDto.getStatusName()).orElse(null) : null;
 
-        // Kiểm tra xem có ngoại lệ nào ném ra hay không
         boolean hasException = false;
 
-        // Kiểm tra số lượng sản phẩm chi tiết trong đơn hàng
         for (OrderDetail orderDetail : order.getOrderDetails()) {
             ProductDetail productDetail = orderDetail.getProductDetail();
 
             if (productDetail.getQuantity() < orderDetail.getQuantity()) {
                 hasException = true;
-                // Số lượng sản phẩm chi tiết vượt quá số lượng trong kho
                 throw new ResourceNotFoundException("Số lượng sản phẩm vượt quá số lượng trong kho!");
             }
         }
 
-        // Nếu có ngoại lệ, không tiến hành cập nhật hóa đơn
         if (!hasException) {
-            // Cập nhật thông tin của hóa đơn
             order.setOrderStatus(orderStatus);
             order.setOrderTotal(requestDto.getOrderTotal());
             order.setNote(requestDto.getNote());
             order.setTransportFee(requestDto.getTransportFee());
-            // Địa chỉ giao
             order.setRecipientName(requestDto.getRecipientName());
             order.setPhoneNumber(requestDto.getPhoneNumber());
             order.setAddressDetail(requestDto.getAddressDetail());
@@ -128,7 +127,6 @@ public class OrderService implements OrderServiceIPL {
             order.setDistrict(requestDto.getDistrict());
             order.setCity(requestDto.getCity());
 
-            // Lưu hóa đơn vào cơ sở dữ liệu
             orderRepository.save(order);
 
             // Tạo đối tượng OrderHistory và lưu vào cơ sở dữ liệu
@@ -138,8 +136,10 @@ public class OrderService implements OrderServiceIPL {
             timeLine.setStatus(orderStatus);
             orderHistoryRepository.save(timeLine);
         }
+
         return order;
     }
+
 
     @Override
     public Order updateOrderUser(Long orderId, Long userId) {
@@ -150,24 +150,11 @@ public class OrderService implements OrderServiceIPL {
         orderRepository.save(order);
         return order;
     }
-
-//    @Override
-//    public Page<Order> getAllOrders(String orderStatusName, String orderId, String orderType,
-//                                    LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-//        return orderRepository.findAllByStatusNameAndDeletedIsTrue(
-//                orderStatusName,
-//                orderId,
-//                orderType,
-//                startDate,
-//                endDate,
-//                pageable);
-//    }
+    
 
     @Override
     public Page<Order> getAllOrders(String orderStatusName, String orderId, String orderType,
                                     LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-        Date convertedStartDate = startDate != null ? Date.from(startDate.atZone(ZoneId.systemDefault()).toInstant()) : null;
-        Date convertedEndDate = endDate != null ? Date.from(endDate.atZone(ZoneId.systemDefault()).toInstant()) : null;
         Long convertedOrderId = null;
         try {
             convertedOrderId = orderId != null ? Long.parseLong(orderId) : null;
@@ -179,10 +166,29 @@ public class OrderService implements OrderServiceIPL {
                 orderStatusName,
                 convertedOrderId,
                 orderType,
-                convertedStartDate,
-                convertedEndDate,
+                startDate,
+                endDate,
                 pageable);
     }
+//    public Page<Order> getAllOrders(String orderStatusName, String orderId, String orderType,
+//                                    LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+//        Date convertedStartDate = startDate != null ? Date.from(startDate.atZone(ZoneId.systemDefault()).toInstant()) : null;
+//        Date convertedEndDate = endDate != null ? Date.from(endDate.atZone(ZoneId.systemDefault()).toInstant()) : null;
+//        Long convertedOrderId = null;
+//        try {
+//            convertedOrderId = orderId != null ? Long.parseLong(orderId) : null;
+//        } catch (NumberFormatException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return orderRepository.findAllByStatusNameAndDeletedIsTrue(
+//                orderStatusName,
+//                convertedOrderId,
+//                orderType,
+//                convertedStartDate,
+//                convertedEndDate,
+//                pageable);
+//    }
 
     @Override
     public Boolean updateOrderStatus(OrderStatusRequestDto orderStatusRequestDto) {
@@ -256,5 +262,31 @@ public class OrderService implements OrderServiceIPL {
         workbook.close();
         ops.close();
     }
+
+
+    @Override
+    public Order updateOrderVoucher(Long orderId, String code) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy id hóa đơn này!"));
+
+        Vocher voucher = (code != null) ? vocherRepo.findByCode(code) : null;
+
+        order.setVoucher(voucher);
+        orderRepository.save(order);
+        return order;
+    }
+
+
+
+//    @Override
+//    public Order updateOderVocher(Long orderId, String voucherCode) {
+//        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy id hóa đơn này!"));
+//
+//        Vocher voucher = (voucherCode != null) ? vocherRepo.findByCode(voucherCode) : null;
+//
+//        order.setVoucher(voucher);
+//        orderRepository.save(order);
+//        return order;
+//    }
 
 }

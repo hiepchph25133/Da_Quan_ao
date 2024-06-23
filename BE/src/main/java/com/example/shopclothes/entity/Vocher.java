@@ -40,8 +40,12 @@ public class Vocher {
     @Column(name = "peopleUpdate")
     private String peopleUpdate;
 
+//    @Column(name = "status")
+//    @Enumerated(EnumType.STRING)
+//    private Status status;
+
     @Column(name = "status")
-    private Status status;
+    private Integer status;
 
     @Column(name = "describe")
     private String describe;
@@ -54,6 +58,18 @@ public class Vocher {
 
     @Column(name = "minMoney")
     private BigDecimal minMoney;
+
+    @Column(name = "quantity")
+    private Integer quantity;
+
+    @Column(name = "order_minimum")  // don hang toi thieu
+    private Integer orderMinimum;
+
+    @Column(name = "max_reduce")  // giam toi da
+    private Integer maxReduce;
+
+    @Column(name = "discount_rate")  // ty le chiet khau
+    private Integer discountRate;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "vocher")
     List<VocherDetail> vocherDetails;
