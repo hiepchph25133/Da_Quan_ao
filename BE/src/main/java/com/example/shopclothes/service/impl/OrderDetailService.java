@@ -32,14 +32,10 @@ public class OrderDetailService implements OrderDetailServiceIPL {
 
     @Override
     public Boolean createOrderDetail(OrderDetailInStoreRequestDto orderDetailRequestDto) {
-        // Tìm ProductDetail theo ID
         ProductDetail productDetail = productDetailRepository.findById(orderDetailRequestDto.getProductDetailId()).orElse(null);
-
-        // Tìm Order theo ID
         Order order = orderRepository.findById(orderDetailRequestDto.getOrderId()).orElse(null);
 
         if (productDetail != null && order != null) {
-            // Kiểm tra xem ProductDetail đã tồn tại trong Order chưa
             Optional<OrderDetail> existingOrderDetail = orderDetailRepository.findByOrderIdAndProductDetailId(order.getId(), productDetail.getId());
 
             if (existingOrderDetail.isPresent()) {
@@ -96,11 +92,7 @@ public class OrderDetailService implements OrderDetailServiceIPL {
     public Boolean deleteOrderDetail(Long id) {
         OrderDetail orderDetail = orderDetailRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hóa đơn chi tiết"));
-
-        // Get the associated ProductDetail
         ProductDetail productDetail = orderDetail.getProductDetail();
-
-        // Xóa OrderDetail
         orderDetailRepository.delete(orderDetail);
 
         if (productDetail != null) {
@@ -115,7 +107,6 @@ public class OrderDetailService implements OrderDetailServiceIPL {
     public Boolean updateQuantityOrderDetail(Integer quantity, Long id) {
         OrderDetail orderDetail = orderDetailRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy id hóa đơn chi tiết này!"));
-        // Get the associated ProductDetail
         ProductDetail productDetail = orderDetail.getProductDetail();
 
 
@@ -125,22 +116,24 @@ public class OrderDetailService implements OrderDetailServiceIPL {
         if ( productDetail.getQuantity() - quantity <= 0 ){
             throw new IllegalArgumentException("Số lượng sản phẩm không đủ");
         }else {
-            // Calculate the difference in quantity
             int quantityDifference = quantity - orderDetail.getQuantity() + quantity;
-
-            // Update the quantity in OrderDetail
             orderDetail.setQuantity(quantity);
             orderDetailRepository.save(orderDetail);
 
-            // Check if ProductDetail is not null (just to be safe)
             if (productDetail != null) {
-                // Update the quantity in ProductDetail
                 productDetail.setQuantity(productDetail.getQuantity() - quantityDifference);
-                // Save the updated ProductDetail
                 productDetailRepository.save(productDetail);
             }
         }
 
         return true;
+    }
+
+
+    @Override
+    public OrderDetail findByOrderDetail(Long id){
+        OrderDetail orderDetail = orderDetailRepository.findById(id).orElseThrow(()
+                -> new ResourceNotFoundException("Không tìm thấy id"));
+        return orderDetail;
     }
 }

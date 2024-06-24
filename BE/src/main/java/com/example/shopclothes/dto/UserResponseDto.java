@@ -27,7 +27,7 @@ public class UserResponseDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private Date birthday;
 
-    private boolean status;
+    private Status status;
 
     private LocalDateTime dateCreate;
 }
