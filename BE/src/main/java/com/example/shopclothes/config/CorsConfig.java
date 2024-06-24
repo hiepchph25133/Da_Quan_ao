@@ -13,7 +13,7 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/v1/**")
-                .allowedOrigins("http://localhost:3000")
+                .allowedOrigins("http://localhost:3000") // Thay đổi URL của React client tại đây
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("Content-Type")
                 .allowCredentials(true);

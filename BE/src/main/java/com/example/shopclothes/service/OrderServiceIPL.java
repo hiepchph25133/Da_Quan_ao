@@ -28,8 +28,4 @@ public interface OrderServiceIPL {
     public Boolean updateOrderStatus(OrderStatusRequestDto orderStatusRequestDto);
 
     void generateExcel(HttpServletResponse response) throws IOException;
-
-    public Order updateOrderVoucher(Long orderId, String code);
-
-//    public Order updateOderVocher(Long orderID, String Vochercode);
 }

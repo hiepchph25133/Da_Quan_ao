@@ -5,7 +5,6 @@ import com.example.shopclothes.dto.OrderDetailInStoreRequestDto;
 import com.example.shopclothes.dto.OrderDetailResponseDto;
 import com.example.shopclothes.dto.ResponseDto;
 import com.example.shopclothes.dto.ResponseHandler;
-import com.example.shopclothes.entity.OrderDetail;
 import com.example.shopclothes.service.OrderDetailServiceIPL;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,11 +72,5 @@ public class OrderDetailController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseDto(NotificationConstants.STATUS_500,NotificationConstants.MESSAGE_500));
         }
-    }
-
-    @GetMapping("findOrderDetailid")
-    public ResponseEntity<OrderDetail> fingByOrderDetail(@RequestParam Long id){
-            OrderDetail orderDetail = orderDetailService.findByOrderDetail(id);
-            return ResponseEntity.status(HttpStatus.OK).body(orderDetail);
     }
 }

@@ -44,12 +44,12 @@ public class User  {
     private String password;
 
 
-    @Column(name = "status")
-    @Enumerated(value = EnumType.STRING)
-    private Status status;
-
 //    @Column(name = "status")
-//    private Boolean status = false;
+//    @Enumerated(value = EnumType.STRING)
+//    private Status status;
+
+    @Column(name = "status")
+    private Boolean status = false;   // xóa mềm (trạng thái)
 
     @Column(name = "dateUpdate")
     private LocalDateTime dateUpdate;
